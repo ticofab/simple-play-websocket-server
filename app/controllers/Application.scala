@@ -6,6 +6,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import play.api.Logger
 import play.api.libs.concurrent.Promise
+import java.io.File
 
 object Application extends Controller {
 
@@ -51,17 +52,40 @@ object Application extends Controller {
   }
 
   // sends the time every second, ignores any input
-  def wsTimeAsync = WebSocket.async[String] {
+  def wsTime = WebSocket.async[String] {
     request => Future {
-      Logger.info(s"wsTimeAsync, client connected.")
+      Logger.info(s"wsTime, client connected.")
 
-      val outEnumerator: Enumerator[String] = Enumerator.generateM(Promise.timeout(Some(s"${new java.util.Date()}"), 1000))
+      val outEnumerator: Enumerator[String] = Enumerator.repeatM(Promise.timeout(s"${new java.util.Date()}", 1000))
 
-      // Log events to the console
       val inIteratee: Iteratee[String, Unit] = Iteratee.ignore[String]
 
       (inIteratee, outEnumerator)
     }
   }
+
+  // sends the time every second, ignores any input
+  def wsPingPong = WebSocket.async[String] {
+    request => Future {
+      Logger.info(s"wsInterleave, client connected.")
+
+      var switch: Boolean = true
+      val outEnumerator = Enumerator.repeatM[String](Promise.timeout({
+        switch = !switch
+        if (switch) "                <----- pong" else "ping ----->"
+      }, 1000))
+
+      (Iteratee.ignore[String], outEnumerator)
+    }
+  }
+
+  def wsFromFile = WebSocket.async[Array[Byte]] {
+    request => Future {
+      val file: File = new File("test.txt")
+      val outEnumerator = Enumerator.fromFile(file)
+      (Iteratee.ignore[Array[Byte]], outEnumerator.andThen(Enumerator.eof))
+    }
+  }
+
 
 }
