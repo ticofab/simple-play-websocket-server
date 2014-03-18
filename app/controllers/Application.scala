@@ -22,7 +22,6 @@ object Application extends Controller {
       var channel: Option[Concurrent.Channel[String]] = None
       val outEnumerator: Enumerator[String] = Concurrent.unicast(c => channel = Some(c))
 
-      // Log events to the console
       val inIteratee: Iteratee[String, Unit] = Iteratee.foreach[String](receivedString => {
         // send string back
         Logger.info(s"wsEcho, received: $receivedString")
@@ -40,7 +39,6 @@ object Application extends Controller {
       var channel: Option[Concurrent.Channel[String]] = None
       val outEnumerator: Enumerator[String] = Concurrent.unicast(c => channel = Some(c))
 
-      // Log events to the console
       val inIteratee: Iteratee[String, Unit] = Iteratee.foreach[String](receivedString => {
         // send string back
         Logger.info(s"wsEchoAsync, received: $receivedString")
@@ -57,7 +55,6 @@ object Application extends Controller {
       Logger.info(s"wsTime, client connected.")
 
       val outEnumerator: Enumerator[String] = Enumerator.repeatM(Promise.timeout(s"${new java.util.Date()}", 1000))
-
       val inIteratee: Iteratee[String, Unit] = Iteratee.ignore[String]
 
       (inIteratee, outEnumerator)
