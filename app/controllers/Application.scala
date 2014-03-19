@@ -76,6 +76,16 @@ object Application extends Controller {
     }
   }
 
+  // interleaves two enumerators
+  def wsInterleave = WebSocket.async[String] {
+    request => Future {
+      val en1: Enumerator[String] = Enumerator.repeatM(Promise.timeout("AAAA", 2000))
+      val en2: Enumerator[String] = Enumerator.repeatM(Promise.timeout("BBBB", 1500))
+      (Iteratee.ignore[String], Enumerator.interleave(en1, en2))
+    }
+  }
+
+  // sends content from a file
   def wsFromFile = WebSocket.async[Array[Byte]] {
     request => Future {
       val file: File = new File("test.txt")
@@ -83,6 +93,4 @@ object Application extends Controller {
       (Iteratee.ignore[Array[Byte]], outEnumerator.andThen(Enumerator.eof))
     }
   }
-
-
 }
