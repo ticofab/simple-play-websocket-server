@@ -3,12 +3,11 @@ package controllers
 import play.api.mvc._
 import play.api.libs.iteratee.{Iteratee, Concurrent, Enumerator}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import play.api.Logger
 import play.api.libs.concurrent.Promise
 import java.io.File
 import play.api.libs.ws.WS
-import scala.concurrent.duration.DurationInt
 
 object Application extends Controller {
 
@@ -118,16 +117,17 @@ object Application extends Controller {
     }
   }
 
-  // watch out! haven't got this working yet!
-  def wsWeatherExp = WebSocket.async[String] {
+  // proxies another webservice at regular intervals
+  def wsWeatherIntervals = WebSocket.async[String] {
     request => Future {
-      val interval = 3 seconds
+
       val url = "http://api.openweathermap.org/data/2.5/weather?q=Amsterdam,nl"
-      val w: Future[String] = WS.url(url).get().map(r => r.body)
-      val t = Promise.timeout(w, 5000)
-      val myEnumerator = Enumerator.repeatM[String](t)
-      (Iteratee.ignore[String], myEnumerator)
+      val outEnumerator = Enumerator.repeatM[String]({
+        Thread.sleep(3000)
+        WS.url(url).get().map(r => s"${new java.util.Date()}\n ${r.body}")
+      })
+
+      (Iteratee.ignore[String], outEnumerator)
     }
   }
-
 }

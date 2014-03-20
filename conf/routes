@@ -14,7 +14,7 @@ GET     /pingpong                   controllers.Application.wsPingPong
 GET     /interleave                 controllers.Application.wsInterleave
 GET     /fromfile                   controllers.Application.wsFromFile
 GET     /wsWeather                  controllers.Application.wsWeatherProxy
-GET     /wsWeatherExp               controllers.Application.wsWeatherExp
+GET     /wsWeatherIntervals         controllers.Application.wsWeatherIntervals
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
