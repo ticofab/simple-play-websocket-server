@@ -4,10 +4,15 @@ import play.api.mvc._
 import play.api.libs.iteratee.{Iteratee, Concurrent, Enumerator}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
 import play.api.Logger
-import play.api.libs.concurrent.Promise
+import play.api.libs.concurrent.{Akka, Promise}
 import java.io.File
 import play.api.libs.ws.WS
+import akka.actor.{Props, Actor}
+import akka.pattern.ask
+import java.util.concurrent.TimeoutException
+import play.api.Play.current
 
 object Application extends Controller {
 
@@ -80,6 +85,7 @@ object Application extends Controller {
   // interleaves two enumerators
   def wsInterleave = WebSocket.async[String] {
     request => Future {
+      Logger.info("wsWithActor, client connected")
       val en1: Enumerator[String] = Enumerator.repeatM(Promise.timeout("AAAA", 2000))
       val en2: Enumerator[String] = Enumerator.repeatM(Promise.timeout("BBBB", 1500))
       (Iteratee.ignore[String], Enumerator.interleave(en1, en2))
@@ -89,15 +95,52 @@ object Application extends Controller {
   // sends content from a file
   def wsFromFile = WebSocket.async[Array[Byte]] {
     request => Future {
+      Logger.info("wsFromFile, client connected")
       val file: File = new File("test.txt")
       val outEnumerator = Enumerator.fromFile(file)
       (Iteratee.ignore[Array[Byte]], outEnumerator.andThen(Enumerator.eof))
     }
   }
 
+
+  def wsWithActor = WebSocket.async[String] {
+    request => {
+      Logger.info("wsWithActor, client connected")
+      val actor = Akka.system.actorOf(Props[WebsocketEchoActor])
+      (actor ? ClientConnected())(3 seconds).mapTo[(Iteratee[String, _], Enumerator[String])].recover {
+        case e: TimeoutException =>
+          // the actor didn't respond
+          Logger.error("actor didn't respond")
+          val out: Enumerator[String] = Enumerator.eof
+          val in: Iteratee[String, Unit] = Iteratee.ignore
+          (in, out)
+      }
+    }
+  }
+
+  case class Start()
+
+  case class ClientConnected()
+
+  class WebsocketEchoActor extends Actor {
+
+    override def receive = {
+      case ClientConnected() =>
+        var channel: Option[Concurrent.Channel[String]] = None
+        val out: Enumerator[String] = Concurrent.unicast(c => channel = Some(c))
+        val in = Iteratee.foreach[String](message => {
+          Logger.info(s"actor, received message: $message")
+          if (message == "fanculo") channel.foreach(_.eofAndEnd())
+          else channel.foreach(_.push(message))
+        })
+        sender !(in, out)
+    }
+  }
+
   // proxies another webservice
   def httpWeatherProxy = Action.async {
     request => {
+      Logger.info("httpWeatherProxy, client connected")
       val url = "http://api.openweathermap.org/data/2.5/weather?q=Amsterdam,nl"
       WS.url(url).get().map(r => Ok(r.body))
     }
@@ -106,6 +149,7 @@ object Application extends Controller {
   // proxies another webservice, websocket style
   def wsWeatherProxy = WebSocket.async[String] {
     request => Future {
+      Logger.info("wsWeatherProxy, client connected")
       val url = "http://api.openweathermap.org/data/2.5/weather?q=Amsterdam,nl"
       var switch = false
       val myEnumerator: Enumerator[String] = Enumerator.generateM[String](WS.url(url).get().map(r => {
@@ -120,7 +164,7 @@ object Application extends Controller {
   // proxies another webservice at regular intervals
   def wsWeatherIntervals = WebSocket.async[String] {
     request => Future {
-
+      Logger.info("wsWeatherIntervals, client connected")
       val url = "http://api.openweathermap.org/data/2.5/weather?q=Amsterdam,nl"
       val outEnumerator = Enumerator.repeatM[String]({
         Thread.sleep(3000)
