@@ -70,7 +70,7 @@ object Application extends Controller {
   // sends the time every second, ignores any input
   def wsPingPong = WebSocket.async[String] {
     request => Future {
-      Logger.info(s"wsInterleave, client connected.")
+      Logger.info(s"wsPingPong, client connected.")
 
       var switch: Boolean = true
       val outEnumerator = Enumerator.repeatM[String](Promise.timeout({
@@ -85,7 +85,7 @@ object Application extends Controller {
   // interleaves two enumerators
   def wsInterleave = WebSocket.async[String] {
     request => Future {
-      Logger.info("wsWithActor, client connected")
+      Logger.info("wsInterleave, client connected")
       val en1: Enumerator[String] = Enumerator.repeatM(Promise.timeout("AAAA", 2000))
       val en2: Enumerator[String] = Enumerator.repeatM(Promise.timeout("BBBB", 1500))
       (Iteratee.ignore[String], Enumerator.interleave(en1, en2))
