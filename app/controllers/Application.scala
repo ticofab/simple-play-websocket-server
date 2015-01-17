@@ -1,5 +1,7 @@
 package controllers
 
+import java.util.logging.Logger
+
 import play.api.mvc._
 import play.api.libs.iteratee.{Iteratee, Concurrent, Enumerator}
 import scala.concurrent.ExecutionContext.Implicits.global
