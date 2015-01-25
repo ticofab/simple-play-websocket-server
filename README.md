@@ -1,7 +1,7 @@
 # Simple WebSocket server with Play! Framework and Scala
 
 
-A very simple WebSocket server using Scala with the Play! Framework.
+A very simple WebSocket server using Scala with the Play! Framework. You can find a simple client to use this at my repository [Simple Websocket Client](https://github.com/ticofab/simple-websocket-client).
 
 It illustrates how to create WebSocket endpoints and usage of:
 
