@@ -1,20 +1,20 @@
 package controllers
 
-import java.util.logging.Logger
+import java.io.File
+import java.util.concurrent.TimeoutException
 
+import akka.actor.{Actor, Props}
+import akka.pattern.ask
+import play.api.Logger
+import play.api.Play.current
+import play.api.libs.concurrent.{Akka, Promise}
+import play.api.libs.iteratee.{Concurrent, Enumerator, Iteratee}
+import play.api.libs.ws.WS
 import play.api.mvc._
-import play.api.libs.iteratee.{Iteratee, Concurrent, Enumerator}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import play.api.Logger
-import play.api.libs.concurrent.{Akka, Promise}
-import java.io.File
-import play.api.libs.ws.WS
-import akka.actor.{Props, Actor}
-import akka.pattern.ask
-import java.util.concurrent.TimeoutException
-import play.api.Play.current
 
 object Application extends Controller {
 
