@@ -37,22 +37,6 @@ class Application @Inject()(ws: WSClient) extends Controller {
     }
   }
 
-  // async version of the echo websocket -- code is exactly the same!
-  def wsEchoAsync = WebSocket.using[String] {
-    request =>
-      Logger.info(s"wsEchoAsync, client connected.")
-      var channel: Option[Concurrent.Channel[String]] = None
-      val outEnumerator: Enumerator[String] = Concurrent.unicast(c => channel = Some(c))
-
-      val inIteratee: Iteratee[String, Unit] = Iteratee.foreach[String](receivedString => {
-        // send string back
-        Logger.info(s"wsEchoAsync, received: $receivedString")
-        channel.foreach(_.push(receivedString))
-      })
-
-      (inIteratee, outEnumerator)
-  }
-
   // sends the time every second, ignores any input
   def wsTime = WebSocket.using[String] {
     request =>

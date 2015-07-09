@@ -8,7 +8,6 @@ GET     /httpWeather                controllers.Application.httpWeatherProxy
 
 # Websocket endpoints
 GET     /echo                       controllers.Application.wsEcho
-GET     /echoAsync                  controllers.Application.wsEchoAsync
 GET     /time                       controllers.Application.wsTime
 GET     /pingpong                   controllers.Application.wsPingPong
 GET     /interleave                 controllers.Application.wsInterleave
