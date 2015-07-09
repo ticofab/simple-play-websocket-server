@@ -1,11 +1,15 @@
-name := "simple-play-websocket-server"
+name := """simple-play-websocket-server"""
 
 version := "1.0-SNAPSHOT"
 
-libraryDependencies ++= Seq(
-  jdbc,
-  anorm,
-  cache
-)     
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-play.Project.playScalaSettings
+scalaVersion := "2.11.6"
+
+libraryDependencies ++= Seq(
+  ws
+)
+
+// Play provides two styles of routers, one expects its actions to be injected, the
+// other, legacy style, accesses its actions statically.
+routesGenerator := InjectedRoutesGenerator
