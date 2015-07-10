@@ -1,9 +1,11 @@
 # Simple WebSocket server with Play! Framework and Scala
 
 
-A very simple WebSocket server using Scala with the Play! Framework. I wrote a blog post to go with this on my blog [ticofab.io](http://ticofab.io/simple-play-websocket-server/). You can find a simple client to test this at my repository [Simple Websocket Client](https://github.com/ticofab/simple-websocket-client).
+A very simple WebSocket server using Scala with the Play! Framework. 
+####I wrote an explanation post to go with this [on my blog](http://ticofab.io/simple-play-websocket-server/).
 
-It illustrates how to create WebSocket endpoints and usage of:
+
+This example illustrates how to create WebSocket endpoints and usage of:
 
 * Enumerator.fromFile
 * Enumerator.eof
@@ -15,7 +17,7 @@ It illustrates how to create WebSocket endpoints and usage of:
 * Concurrent.unicast
 * Channel push
 
-I wrote a presentation about WebSockets in Play!. Find it [here on SlideShare](http://www.slideshare.net/FabioTiriticco/websocket-wiith-scala-and-play-framework).
+You can find a simple client to test this at my repository [Simple Websocket Client](https://github.com/ticofab/simple-websocket-client). I wrote a presentation about WebSockets in Play, you can find it [here on SlideShare](http://www.slideshare.net/FabioTiriticco/websocket-wiith-scala-and-play-framework). 
 
 ## LICENSE
 
